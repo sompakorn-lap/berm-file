@@ -1,9 +1,9 @@
 {
-    "name": "basic-setup-berm-stack",
+    "name": "berm-file",
     "version": "1.0.0",
     "author": "BOM S. LAP",
     "license": "ISC",
-    "description": "Basic setup BERM stack (bun, elysia, react, mongodb) for deploy on render.com",
+    "description": "file system for BERM",
     "scripts": {
       "start": "cd server && ./server",
       "build:server": "cd server && bun i && bun run build",
