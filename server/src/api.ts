@@ -1,8 +1,5 @@
 import Elysia from "elysia";
-import userApi from "./features/user/api";
+import fileApi from "./features/file/api";
 
-const api = new Elysia({ prefix: "/api" })
-  .use(userApi)
-;
-
+const api = new Elysia({ prefix: "/api" }).use(fileApi);
 export default api;
