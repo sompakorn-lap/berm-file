@@ -1,8 +1,8 @@
-import { Readable } from "stream";
 import { ggdrive } from "@/libs/google/config";
 import fileTable from "./table";
 import { error } from "elysia";
-import folderTable from "../folder/table";
+import FolderService from "../folder/service";
+import { fileToReadableStream } from "./util";
 
 class FileService {
   static async list() {
@@ -22,13 +22,8 @@ class FileService {
     const duplicatedFile = await fileTable.findOne({ fileName }).lean().exec();
     if (duplicatedFile) throw error("Conflict");
 
-    const availableFolder = await folderTable.findOne({ folderName }).lean().exec();
-    if(!availableFolder) throw error("Not Found");
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const stream = Readable.from(buffer);
-
-    const { folderId } = availableFolder;
+    const { folderId } = await FolderService.find(folderName);
+    const stream = await fileToReadableStream(file);
     const { data } = await ggdrive.files.create({
       requestBody: {
         name: fileName,
@@ -71,10 +66,8 @@ class FileService {
     const availableFile = await fileTable.findOne({ fileName }).lean().exec();
     if (!availableFile) throw error("Not Found");
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const stream = Readable.from(buffer);
-
     const { fileId } = availableFile;
+    const stream = await fileToReadableStream(file);
     await ggdrive.files.update({
       fileId,
       media: {
