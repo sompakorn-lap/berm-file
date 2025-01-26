@@ -2,8 +2,7 @@ import { Readable } from "stream";
 import { ggdrive } from "@/libs/google/config";
 import fileTable from "./table";
 import { error } from "elysia";
-
-const folders = JSON.parse(process.env.GGDRIVE_FOLDERS as string);
+import folderTable from "../folder/table";
 
 class FileService {
   static async list() {
@@ -11,17 +10,29 @@ class FileService {
     return fileList;
   }
 
-  static async upload(file: File, fileName: string, folder: string) {
+  static async upload(
+    file: File,
+    uploadData: {
+      fileName: string;
+      folderName: string;
+    }
+  ) {
+    const { fileName, folderName } = uploadData;
+
     const duplicatedFile = await fileTable.findOne({ fileName }).lean().exec();
     if (duplicatedFile) throw error("Conflict");
+
+    const availableFolder = await folderTable.findOne({ folderName }).lean().exec();
+    if(!availableFolder) throw error("Not Found");
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const stream = Readable.from(buffer);
 
+    const { folderId } = availableFolder;
     const { data } = await ggdrive.files.create({
       requestBody: {
         name: fileName,
-        parents: [folders[folder]],
+        parents: [folderId],
       },
       media: {
         body: stream,
@@ -31,7 +42,7 @@ class FileService {
 
     await fileTable.create({
       fileId: data.id,
-      fileName,
+      ...uploadData,
     });
 
     return fileName;
@@ -80,7 +91,7 @@ class FileService {
     const { fileId } = availableFile;
     await ggdrive.files.delete({ fileId });
 
-    await fileTable.deleteOne({ fileId });
+    await fileTable.findOneAndDelete({ fileId }).lean().exec();
   }
 }
 

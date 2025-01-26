@@ -2,18 +2,13 @@ import Elysia, { t } from "elysia";
 import FileService from "./service";
 
 const fileApi = new Elysia({ prefix: "/file" })
-  .post(
-    "/",
-    ({ body: { file, fileName, folder } }) =>
-      FileService.upload(file, fileName, folder),
-    {
-      body: t.Object({
-        file: t.File(),
-        fileName: t.String(),
-        folder: t.String(),
-      }),
-    }
-  )
+  .post("/", ({ body: { file, ...data } }) => FileService.upload(file, data), {
+    body: t.Object({
+      fileName: t.String(),
+      folderName: t.String(),
+      file: t.File()
+    }),
+  })
   .get("/:fileName", ({ params: { fileName } }) => FileService.view(fileName))
   .patch(
     "/:fileName",
@@ -30,4 +25,5 @@ const fileApi = new Elysia({ prefix: "/file" })
   )
 
   .get("/list", () => FileService.list());
+
 export default fileApi;

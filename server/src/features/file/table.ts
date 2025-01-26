@@ -5,6 +5,7 @@ const fileTable = model(
   new Schema<{
     fileId: string;
     fileName: string;
+    folderName: string;
   }>({
     fileId: {
       type: String,
@@ -15,6 +16,10 @@ const fileTable = model(
       type: String,
       require: true,
       unique: true,
+    },
+    folderName: {
+      type: String,
+      require: true,
     },
   })
 );
