@@ -5,8 +5,8 @@ class FolderService {
   static async create(data: { folderId: string; folderName: string }){
     const { folderName } = data;
     
-    const duplicate = await folderTable.findOne({ folderName }).lean().exec();
-    if(duplicate) throw error("Conflict");
+    const duplicateFolder = await folderTable.findOne({ folderName }).lean().exec();
+    if(duplicateFolder) throw error("Conflict");
 
     await folderTable.create(data);
   }
@@ -16,6 +16,13 @@ class FolderService {
     if (!availableFolder) throw error("Not Found");
 
     await folderTable.findOneAndDelete({ folderName }).lean().exec();
+  }
+
+  static async find(folderName: string){
+    const availableFolder = await folderTable.findOne({ folderName }).lean().exec();
+    if(!availableFolder) throw error("Not Found");
+
+    return availableFolder;
   }
 
   static async list(){
