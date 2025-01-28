@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ReactIcon from "./assets/react.svg";
+import FileForm from "./features/file/FileForm";
 
 function HomePage() {
   const [count, setCount] = useState(0);
@@ -17,6 +18,8 @@ function HomePage() {
       >
         count: {count}
       </button>
+
+      <FileForm />
 
     </section>
   );
